@@ -93,6 +93,7 @@ export const useBoardStore = create((set, get) => ({
       set({ activeBoard: board, tasks, loading: false });
 
       // Connect and join socket room
+      // Connect and join socket room
       const { user } = get();
       if (user) {
         // Clean up socket listeners first to prevent duplicates
@@ -103,8 +104,6 @@ export const useBoardStore = create((set, get) => ({
         socket.off('task-moved');
         socket.off('task-updated');
         socket.off('task-deleted');
-
-        connectSocket(user, boardId);
 
         // Listen for online users updates
         socket.on('online-users', (users) => {
@@ -169,6 +168,9 @@ export const useBoardStore = create((set, get) => ({
             tasks: state.tasks.filter((t) => t._id !== taskId),
           }));
         });
+
+        // Finally, connect socket and join the board room (after listeners are registered)
+        connectSocket(user, boardId);
       }
     } catch (err) {
       set({ error: err.response?.data?.message || 'Failed to load board details', loading: false });
